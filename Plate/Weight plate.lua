@@ -18,10 +18,6 @@ function onLoad(savedData)
   Wait.Frames(SetNumber, 5)
 end
 
-function onObjectHover()
-  WeightCalculation()
-end
-
 function SetNumber()
   local textWeight = "Weight: " .. currentWeight .. "/" .. maxWeight
 	self.UI.setValue("weight", textWeight)
@@ -41,29 +37,44 @@ end
 
 function onCollisionEnter(obj)
   if(currentWeight) then
-    table.insert(allObjectGUID, obj.collision_object.getGUID())
-    WeightCalculation()
-    if(gameCharacterGUID) then
-      -- Пересоздать панель
-      getObjectFromGUID(gameCharacterGUID).call("CreateFields")
+    if(obj.collision_object.getName() ~= "") then
+      table.insert(allObjectGUID, obj.collision_object.getGUID())
+      WeightCalculation()
+      CreateTimerForRecreate()
     end
   end
 end
 
 function onCollisionExit(obj)
   if(currentWeight) then
-    local locGUID = obj.collision_object.getGUID()
-    for i,v in ipairs(allObjectGUID) do
-      if(v == locGUID) then
-        table.remove(allObjectGUID, i)
-        break
+    if(obj.collision_object.getName() ~= "") then
+      local locGUID = obj.collision_object.getGUID()
+      for i,v in ipairs(allObjectGUID) do
+        if(v == locGUID) then
+          table.remove(allObjectGUID, i)
+          break
+        end
       end
+      WeightCalculation()
+      CreateTimerForRecreate()
     end
-    WeightCalculation()
-    if(gameCharacterGUID) then
-      -- Пересоздать панель
-      getObjectFromGUID(gameCharacterGUID).call("CreateFields")
-    end
+  end
+end
+
+function CreateTimerForRecreate()
+  local locIdentifier = "RecreatePanel"..self.getGUID()
+  Timer.destroy(locIdentifier)
+  Timer.create({
+    identifier     = locIdentifier,
+    function_name  = "RecreatePanel",
+    delay          = 2,
+    repetitions    = 1
+  })
+end
+function RecreatePanel()
+  if(gameCharacterGUID) then
+    -- Пересоздать панель
+    getObjectFromGUID(gameCharacterGUID).call("CreateFields")
   end
 end
 

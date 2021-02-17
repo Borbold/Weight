@@ -1,9 +1,20 @@
-function onObjectHover()
-  currentWeight = 0
-  for _,v in pairs(self.getObjects()) do
-    WeightCalculation(v.description)
-  end
-  Wait.frames(|| SetNumber(), 5)
+function onObjectEnterContainer()
+  Wait.frames(function()
+    currentWeight = 0
+    for _,v in pairs(self.getObjects()) do
+      WeightCalculation(v.description)
+    end
+  end, 5)
+  Wait.frames(|| SetNumber(), 7)
+end
+function onObjectLeaveContainer()
+  Wait.frames(function()
+    currentWeight = 0
+    for _,v in pairs(self.getObjects()) do
+      WeightCalculation(v.description)
+    end
+  end, 5)
+  Wait.frames(|| SetNumber(), 7)
 end
 
 function WeightCalculation(allDesctiption, num)
