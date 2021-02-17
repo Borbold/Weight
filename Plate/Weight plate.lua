@@ -1,6 +1,7 @@
-function UpdateSave()
+﻿function UpdateSave()
   local dataToSave = { ["maxWeight"] = maxWeight,
-    ["allObjectGUID"] = allObjectGUID}
+    ["allObjectGUID"] = allObjectGUID, ["gameCharacterGUID"] = gameCharacterGUID
+  }
   local savedData = JSON.encode(dataToSave)
   self.script_state = savedData
 end
@@ -12,6 +13,7 @@ function onLoad(savedData)
     local loadedData = JSON.decode(savedData)
     maxWeight = loadedData.maxWeight or 20
     allObjectGUID = loadedData.allObjectGUID or {}
+    gameCharacterGUID = loadedData.gameCharacterGUID or nil
   end
   Wait.Frames(SetNumber, 5)
 end
@@ -41,6 +43,10 @@ function onCollisionEnter(obj)
   if(currentWeight) then
     table.insert(allObjectGUID, obj.collision_object.getGUID())
     WeightCalculation()
+    if(gameCharacterGUID) then
+      -- Пересоздать панель
+      getObjectFromGUID(gameCharacterGUID).call("CreateFields")
+    end
   end
 end
 
@@ -54,7 +60,20 @@ function onCollisionExit(obj)
       end
     end
     WeightCalculation()
+    if(gameCharacterGUID) then
+      -- Пересоздать панель
+      getObjectFromGUID(gameCharacterGUID).call("CreateFields")
+    end
   end
+end
+
+function GetAllObjectGUID()
+  return allObjectGUID
+end
+
+function SetGameCharacter(params)
+  gameCharacterGUID = params.gameChar
+  UpdateSave()
 end
 
 function WeightCalculation()
@@ -69,7 +88,7 @@ function WeightCalculation()
         currentWeight = currentWeight + tonumber(S)
         break
       end
-      if(S == "���:" or S == "weight:") then
+      if(S == "вес:" or S == "weight:") then
         isFlag = true
       end
     end
