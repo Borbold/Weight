@@ -1,20 +1,20 @@
 function onObjectEnterContainer()
-  Wait.frames(function()
+  Wait.time(function()
     currentWeight = 0
     for _,v in pairs(self.getObjects()) do
       WeightCalculation(v.description)
     end
-  end, 5)
-  Wait.frames(|| SetNumber(), 7)
+  end, 0.2)
+  Wait.time(|| SetNumber(), 0.3)
 end
 function onObjectLeaveContainer()
-  Wait.frames(function()
+  Wait.time(function()
     currentWeight = 0
     for _,v in pairs(self.getObjects()) do
       WeightCalculation(v.description)
     end
-  end, 5)
-  Wait.frames(|| SetNumber(), 7)
+  end, 0.2)
+  Wait.time(|| SetNumber(), 0.3)
 end
 
 function WeightCalculation(allDesctiption, num)

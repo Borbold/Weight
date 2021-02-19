@@ -15,7 +15,7 @@ function onLoad(savedData)
     allObjectGUID = loadedData.allObjectGUID or {}
     gameCharacterGUID = loadedData.gameCharacterGUID or nil
   end
-  Wait.Frames(SetNumber, 5)
+  Wait.time(SetNumber, 0.2)
 end
 
 function SetNumber()
