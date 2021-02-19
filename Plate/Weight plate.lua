@@ -1,6 +1,7 @@
 ﻿function UpdateSave()
   local dataToSave = { ["maxWeight"] = maxWeight,
-    ["allObjectGUID"] = allObjectGUID, ["gameCharacterGUID"] = gameCharacterGUID
+    ["allObjectGUID"] = allObjectGUID, ["gameCharacterGUID"] = gameCharacterGUID,
+    ["allFeatureGUID"] = allFeatureGUID
   }
   local savedData = JSON.encode(dataToSave)
   self.script_state = savedData
@@ -14,8 +15,17 @@ function onLoad(savedData)
     maxWeight = loadedData.maxWeight or 20
     allObjectGUID = loadedData.allObjectGUID or {}
     gameCharacterGUID = loadedData.gameCharacterGUID or nil
+    allFeatureGUID = loadedData.allFeatureGUID or nil
   end
   Wait.time(SetNumber, 0.2)
+  Wait.time(CreateAllFeatureObj, 0.2)
+end
+
+function CreateAllFeatureObj()
+  allFeatureObj = {}
+  for _,guid in ipairs(allFeatureGUID or {}) do
+    table.insert(allFeatureObj, getObjectFromGUID(guid))
+  end
 end
 
 function SetNumber()
@@ -36,32 +46,33 @@ function ReturnOriginal()
 end
 
 function onCollisionEnter(obj)
-  if(currentWeight) then
-    if(obj.collision_object.getName() ~= "") then
-      table.insert(allObjectGUID, obj.collision_object.getGUID())
-      WeightCalculation()
-      CreateTimerForRecreate()
-    end
+  if(currentWeight and obj.collision_object.getName() ~= "") then
+    table.insert(allObjectGUID, obj.collision_object.getGUID())
+    WeightCalculation()
+    CreateTimerForRecreate(obj.collision_object.getDescription(), obj.collision_object.getGUID())
+  end
+  if(obj.collision_object.getName() == "") then
+    broadcastToAll("Добавте предмету название!")
   end
 end
 
 function onCollisionExit(obj)
-  if(currentWeight) then
-    if(obj.collision_object.getName() ~= "") then
-      local locGUID = obj.collision_object.getGUID()
-      for i,v in ipairs(allObjectGUID) do
-        if(v == locGUID) then
-          table.remove(allObjectGUID, i)
-          break
-        end
+  if(currentWeight and obj.collision_object.getName() ~= "") then
+    local locGUID = obj.collision_object.getGUID()
+    for i,v in ipairs(allObjectGUID) do
+      if(v == locGUID) then
+        table.remove(allObjectGUID, i)
+        break
       end
-      WeightCalculation()
-      CreateTimerForRecreate()
     end
+    WeightCalculation()
+    CreateTimerForRecreate(nil, obj.collision_object.getGUID())
   end
 end
 
-function CreateTimerForRecreate()
+function CreateTimerForRecreate(itemDesc, guidItem)
+  Wait.time(|| FeatureRecalculation(itemDesc, guidItem), 0.05)
+
   local locIdentifier = "RecreatePanel"..self.getGUID()
   Timer.destroy(locIdentifier)
   Timer.create({
@@ -77,13 +88,30 @@ function RecreatePanel()
     getObjectFromGUID(gameCharacterGUID).call("CreateFields")
   end
 end
+function FeatureRecalculation(itemDesc, guidItem)
+  for i,charObj in ipairs(allFeatureObj) do
+    local tableName = {}
+    for S in charObj.getName():gmatch("%S+") do
+      table.insert(tableName, S)
+    end
+
+    if(not itemDesc) then
+      local param = {guid = guidItem, input = nil}
+      charObj.call("RecalculationValueInInventory", param)
+    elseif(tableName[2] and itemDesc:find(tableName[2])) then
+      local param = {guid = guidItem, input = itemDesc:match("%((.+)%)")}
+      charObj.call("RecalculationValueInInventory", param)
+    end
+  end
+end
 
 function GetAllObjectGUID()
   return allObjectGUID
 end
 
-function SetGameCharacter(params)
-  gameCharacterGUID = params.gameChar
+function SetGameCharacter(param)
+  gameCharacterGUID = param.charGUID
+  allFeatureGUID = param.allFeatGUID
   UpdateSave()
 end
 
