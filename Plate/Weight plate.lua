@@ -17,8 +17,8 @@ function onLoad(savedData)
     gameCharacterGUID = loadedData.gameCharacterGUID or nil
     allFeatureGUID = loadedData.allFeatureGUID or nil
   end
-  Wait.time(SetNumber, 0.2)
-  Wait.time(CreateAllFeatureObj, 0.2)
+  Wait.time(SetNumber, 0.5)
+  Wait.time(CreateAllFeatureObj, 0.6)
 end
 
 function CreateAllFeatureObj()
