@@ -46,13 +46,14 @@ function ReturnOriginal()
 end
 
 function onCollisionEnter(obj)
+  if(obj.collision_object.getName() == "" and obj.collision_object.getPosition().y > self.getPosition().y) then
+    broadcastToAll("Добавте предмету название!")
+    return
+  end
   if(currentWeight and obj.collision_object.getName() ~= "") then
     table.insert(allObjectGUID, obj.collision_object.getGUID())
     WeightCalculation()
     CreateTimerForRecreate(obj.collision_object.getDescription(), obj.collision_object.getGUID())
-  end
-  if(obj.collision_object.getName() == "") then
-    broadcastToAll("Добавте предмету название!")
   end
 end
 
