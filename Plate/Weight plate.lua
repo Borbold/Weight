@@ -100,7 +100,10 @@ function FeatureRecalculation(itemDesc, guidItem)
       local param = {guid = guidItem, input = nil}
       charObj.call("RecalculationValueInInventory", param)
     elseif(tableName[2] and itemDesc:find(tableName[2])) then
-      local param = {guid = guidItem, input = itemDesc:match("%((.+)%)")}
+      local findCharac = itemDesc:find(tableName[2])
+      local clipping = itemDesc:sub(findCharac)
+      clipping = clipping:sub(0, clipping:find(")"))
+      local param = {guid = guidItem, input = clipping:match("%((.+)%)")}
       charObj.call("RecalculationValueInInventory", param)
     end
   end
