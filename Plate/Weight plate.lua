@@ -116,6 +116,7 @@ end
 function SetGameCharacter(param)
   gameCharacterGUID = param.charGUID
   allFeatureGUID = param.allFeatGUID
+  CreateAllFeatureObj()
   UpdateSave()
 end
 
